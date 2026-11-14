@@ -24,8 +24,10 @@ faza = np.angle(img_mag_1)
 rezultat = prostorni_iz_fft(faza, np.exp(1j * img_fft_log))
 
 plt.imshow(img, cmap="gray")
+plt.axis("off")
 plt.show()
 
 plt.imshow(np.log(rezultat + 1e-12), cmap="gray")
+plt.axis("off")
 plt.savefig("rezultat.png", dpi=70)
 plt.show()
