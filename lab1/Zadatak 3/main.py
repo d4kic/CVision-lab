@@ -2,32 +2,22 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-def frekventni_dom(img):
-    img_fft = np.fft.fft2(img)
-    img_fft = np.fft.fftshift(img_fft)
-    return img_fft
-
-def prostorni_iz_fft(magnitude_log, complex_moduo_1):
-    img_fft = complex_moduo_1 * np.exp(magnitude_log)
-    return np.abs(np.fft.ifft2(img_fft))
-
 img = cv2.imread("primer.png", cv2.IMREAD_GRAYSCALE)
 
-img_fft = frekventni_dom(img)
+img_fft = np.fft.fftshift(np.fft.fft2(img))
 
-img_fft_mag = np.abs(img_fft) + 1e-12      # 1e-12 da nema deljenja nulom
-img_mag_1 = img_fft / img_fft_mag          # faza
-img_fft_log = np.log(img_fft_mag)          # log-amplituda
+amp = np.abs(img_fft) + 1e-12
+faza = np.angle(img_fft)
 
-# faza ide na mesto log-amplitude, log-amplituda u ugao
-faza = np.angle(img_mag_1)
-rezultat = prostorni_iz_fft(faza, np.exp(1j * img_fft_log))
+novi_spektar = np.exp(faza + 1j * np.log(amp))
+rezultat = np.real(np.fft.ifft2(np.fft.ifftshift(novi_spektar)))
 
 plt.imshow(img, cmap="gray")
 plt.axis("off")
 plt.show()
 
-plt.imshow(np.log(rezultat + 1e-12), cmap="gray")
+vmin, vmax = np.percentile(rezultat, [1, 99])
+plt.imshow(rezultat, cmap="gray", vmin=vmin, vmax=vmax)
 plt.axis("off")
-plt.savefig("rezultat.png", dpi=70)
+plt.imsave("rezultat.png", rezultat, cmap="gray", vmin=vmin, vmax=vmax)
 plt.show()
